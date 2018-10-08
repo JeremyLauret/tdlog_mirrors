@@ -3,3 +3,4 @@ venv
 re
 *.zip
 .idea/
+lib/__pycache__/
