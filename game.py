@@ -6,6 +6,12 @@ import lib.string_utils as string_utils
 import conf
 import re
 
+def like_stop(string):
+    """
+       Indicates if string is equal to "stop" in a non case-sensitive sense.
+    """
+    return re.match('stop', string, re.IGNORECASE)
+
 def input_grid():
     """
        Builds a Grid object from user input.
@@ -30,10 +36,10 @@ def input_grid():
         print(" -- Miroir/Téléporteur n°{} -- ".format(count))
         print(" Entrez \"Stop\" pour quitter.")
         row_str = input("Ligne ? [A|B|...] : > ")
-        if (re.match('stop', row_str, re.IGNORECASE)):
+        if (like_stop(row_str)):
             break
         col_str = input("Colonne ? [A|B|...] : > ")
-        if (re.match('stop', col_str, re.IGNORECASE)):
+        if (like_stop(col_str)):
             break
         try:
             row = string_utils.cap_letter_to_rank(row_str)
@@ -43,11 +49,8 @@ def input_grid():
             print("Erreur : les coordonnées fournies sont invalides.")
             continue
         type = input("Type ? [/|\\|#|||-|o] : > ")
-        if (re.match('stop', type, re.IGNORECASE)):
+        if (like_stop(type)):
             break
-        if type not in conf.allowed_items:
-            print("Erreur : type d'objet inconnu.")
-            continue
         if type == 'o':
             items.append((row, col, teleporter.Teleporter(row, col)))
         elif type == '\\' :
@@ -60,6 +63,9 @@ def input_grid():
             items.append((row, col, mirrors.PipeMirror()))
         elif type == '-' :
             items.append((row, col, mirrors.DashMirror()))
+        else:
+            print("Erreur : type d'objet inconnu.")
+            continue
         count += 1
     return grid.Grid(height, width, items)
 
