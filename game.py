@@ -6,16 +6,15 @@ import lib.string_utils as string_utils
 import conf
 import re
 
-def like_stop(string):
-    """
-       Indicates if string is equal to "stop" in a non case-sensitive sense.
-    """
-    return re.match('stop', string, re.IGNORECASE)
-
 def input_grid():
     """
        Builds a Grid object from user input.
     """
+    def case_insensitive_stop(string):
+        """
+        :return: True if string is equal to "stop" in a case insensitive sense, False if not.
+        """
+        return re.match('stop', string, re.IGNORECASE)
     valid_dimensions = False
     while (not valid_dimensions):
         try:
@@ -36,10 +35,10 @@ def input_grid():
         print(" -- Miroir/Téléporteur n°{} -- ".format(count))
         print(" Entrez \"Stop\" pour quitter.")
         row_str = input("Ligne ? [A|B|...] : > ")
-        if (like_stop(row_str)):
+        if (case_insensitive_stop(row_str)):
             break
         col_str = input("Colonne ? [A|B|...] : > ")
-        if (like_stop(col_str)):
+        if (case_insensitive_stop(col_str)):
             break
         try:
             row = string_utils.cap_letter_to_rank(row_str)
@@ -49,7 +48,7 @@ def input_grid():
             print("Erreur : les coordonnées fournies sont invalides.")
             continue
         type = input("Type ? [/|\\|#|||-|o] : > ")
-        if (like_stop(type)):
+        if (case_insensitive_stop(type)):
             break
         if type == 'o':
             items.append((row, col, teleporter.Teleporter(row, col)))
