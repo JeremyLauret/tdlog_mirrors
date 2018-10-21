@@ -5,15 +5,17 @@ class Mirror():
     def __init__(self):
         pass
 
-    def reflect(self, laser):
+    def interact_with_laser(self, laser, random=True):
         """
-           Reflects the given laser on the mirror.
+           Reflects the given laser on the mirror and returns None for the laser
+           not to duplicate.
         """
         laser.direction = self._DIRECTIONS[laser.direction]
 
 class BackslashMirror(Mirror):
     """
-       A backslash mirror '\' reflects lasers from every direction in a 90° angle.
+       A backslash mirror '\' reflects lasers from every direction in a 90°
+       angle.
     """
     _DIRECTIONS = {'>': 'v', 'v': '>', '<': '^', '^': '<'}
     @property

@@ -10,24 +10,23 @@ def input_grid():
     """
        Builds a Grid object from user input.
     """
-    def case_insensitive_stop(string):
-        """
-        :return: True if string is equal to "stop" in a case insensitive sense, False if not.
-        """
-        return re.match('stop', string, re.IGNORECASE)
     valid_dimensions = False
     while (not valid_dimensions):
         try:
-            height = int(input("Hauteur de la grille ? [{}..{}] > ".format(conf.min_height, conf.max_height)))
-            width = int(input("Largeur de la grille ? [{}..{}] > ".format(conf.min_width, conf.max_width)))
+            height = int(input("Hauteur de la grille ? [{}..{}] > ".format(
+                     conf.min_height, conf.max_height)))
+            width = int(input("Largeur de la grille ? [{}..{}] > ".format(
+                    conf.min_width, conf.max_width)))
         except:
             print("Erreur : les dimensions fournies doivent être des entiers.")
             continue
-        if not (conf.min_width <= width <= conf.max_width and conf.min_height <= height <= conf.max_height):
+        if not (conf.min_width <= width <= conf.max_width and conf.min_height
+                <= height <= conf.max_height):
             print("Erreur : les dimensions fournies sont invalides")
             continue
         valid_dimensions = True
-    print("Début de la séquence d'ajout de miroirs et téléporteurs...entrez \"Stop\" pour y mettre fin.")
+    print("Début de la séquence d'ajout de miroirs et téléporteurs...entrez"
+          " \"Stop\" pour y mettre fin.")
     items = []
     count = 1
     while (True):
@@ -35,10 +34,10 @@ def input_grid():
         print(" -- Miroir/Téléporteur n°{} -- ".format(count))
         print(" Entrez \"Stop\" pour quitter.")
         row_str = input("Ligne ? [A|B|...] : > ")
-        if (case_insensitive_stop(row_str)):
+        if (string_utils.case_insensitive_stop(row_str)):
             break
         col_str = input("Colonne ? [A|B|...] : > ")
-        if (case_insensitive_stop(col_str)):
+        if (string_utils.case_insensitive_stop(col_str)):
             break
         try:
             row = string_utils.cap_letter_to_rank(row_str)
@@ -48,7 +47,7 @@ def input_grid():
             print("Erreur : les coordonnées fournies sont invalides.")
             continue
         type = input("Type ? [/|\\|#|||-|o] : > ")
-        if (case_insensitive_stop(type)):
+        if (string_utils.case_insensitive_stop(type)):
             break
         if type == 'o':
             items.append((row, col, teleporter.Teleporter(row, col)))
@@ -81,7 +80,8 @@ def input_laser(container):
             "Erreur : direction invalide."
             continue
         try:
-            entry_point = string_utils.cap_letter_to_rank(input("Point d'entrée du laser ? [A|B|...] > "))
+            entry_point = string_utils.cap_letter_to_rank(input("Point"
+                          " d'entrée du laser ? [A|B|...] > "))
             if direction in ['>', '<']:
                 assert 0 <= entry_point < container.height
             else:
@@ -96,26 +96,62 @@ def input_laser(container):
         x, y = 0 if direction == 'v' else container.height - 1, entry_point
     return laser.Laser(x, y, direction, container)
 
+def build_conclusion(grid, exit_x, exit_y, exit_direction):
+    """
+       Builds the conclusion text summing up the exit point and direction of
+       the laser after a simulation.
+    """
+    if exit_x < 0 or exit_x >= grid.height:
+        exit_point = string_utils.rank_to_cap_letter(exit_y)
+        return ("Le laser quitte la grille au point {} avec pour direction {}."
+                .format(exit_point, exit_direction))
+    elif exit_y < 0 or exit_y >= grid.width:
+        exit_point = string_utils.rank_to_cap_letter(exit_x)
+        return ("Le laser quitte la grille au point {} avec pour direction {}."
+                .format(exit_point, exit_direction))
+    # Le laser a disparu dans un téléporteur
+    exit_point = (string_utils.rank_to_cap_letter(exit_x),
+                  string_utils.rank_to_cap_letter(exit_y))
+    return ("Le laser est aspiré par un téléporteur sans sortie ! Il disparait"
+            " au point ({}, {}) avec direction {}."
+            .format(exit_point[0], exit_point[1], exit_direction))
+              
+def build_conclusions(grid, exit_data):
+    """
+       Builds the conclusion text summing up the exit points and directions the
+       laser could have depending on the teleporters it encounters.
+       
+       :param exit_data: 
+       List of size 3 tuples in the form (exit_x, exit_y, exit_direction).
+    """
+    if (len(exit_data) == 1):    # Si un seul résultat est possible
+        return (build_conclusion(grid, exit_data[0][0], exit_data[0][1],
+                exit_data[0][2]))
+    text = "Les résultats possibles de la simulation sont les suivants :\n"
+    counter = 1
+    for data in exit_data:
+        text += (str(counter) + ") "
+                 + build_conclusion(grid, data[0], data[1], data[2]) + "\n")
+        counter += 1
+    return text
+    
+def display_conclusion(grid, exit_data):
+    print(build_conclusions(grid, exit_data))
+
 def play():
+    teleporter.Teleporter.wipe_teleporter_coordinates()
     Grid = input_grid()
     print(Grid)
     Laser = input_laser(Grid)
-    exit_x, exit_y, exit_direction = Grid.compute_laser_exit(Laser)
-
-    if exit_x < 0 or exit_x >= Grid.height:
-        exit_point = string_utils.rank_to_cap_letter(exit_y)
-        print("Le laser a quitté la grille au point {} avec direction {}.".format(exit_point, exit_direction))
-    elif exit_y < 0 or exit_y >= Grid.width:
-        exit_point = string_utils.rank_to_cap_letter(exit_x)
-        print("Le laser a quitté la grille au point {} avec direction {}.".format(exit_point, exit_direction))
-    else:    # Le laser a disparu dans un téléporteur
-        exit_point = (string_utils.rank_to_cap_letter(exit_x), string_utils.rank_to_cap_letter(exit_y))
-        print("Le laser a été aspiré par un téléporteur sans sortie ! Il a disparu au point"
-              " ({}, {}) avec direction {}.".format(exit_point[0], exit_point[1], exit_direction))
-
-    display_laser_path = input("Afficher le trajet du laser ? [O|n] > ")
-    if (re.match('no?n?', display_laser_path, re.IGNORECASE)):
-        return
-    Grid.display_laser(Laser)
+    compute_all_paths = input("Calculer chaque sortie possible ? [O|n] > ")
+    print(" ")
+    if (re.match('no?n?', compute_all_paths, re.IGNORECASE)):
+        exit_data = Grid.compute_laser_exit(Laser)
+        display_laser_path = input("Afficher le trajet du laser ? [O|n] > ")
+        if (not re.match('no?n?', display_laser_path, re.IGNORECASE)):
+            Grid.display_laser(Laser)
+    else:
+        exit_data = Grid.compute_all_laser_exits(Laser)
+    display_conclusion(Grid, exit_data)
 
 play()
