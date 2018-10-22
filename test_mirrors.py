@@ -59,15 +59,15 @@ class MirrorsTest(unittest.TestCase):
         self.assertEqual(data_bottom[0], (1, 3, '>'))
         
     def build_mirror(self, type):
-        if type == '\\' :
+        if type == '\\':
             return [(1, 1, mirrors.BackslashMirror())]
-        if type == '/' :
+        if type == '/':
             return [(1, 1, mirrors.SlashMirror())]
-        if type == '#' :
+        if type == '#':
             return [(1, 1, mirrors.HashMirror())]
-        if type == '|' :
+        if type == '|':
             return [(1, 1, mirrors.PipeMirror())]
-        if type == '-' :
+        if type == '-':
             return [(1, 1, mirrors.DashMirror())]
         return []    # Useful to test empty mirrors
         

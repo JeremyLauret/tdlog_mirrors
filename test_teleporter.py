@@ -23,8 +23,8 @@ class TeleporterTest(unittest.TestCase):
         _grid = self.build_grid(items)
         _laser = self.build_laser(_grid)
         exit_data = _grid.compute_laser_exit(_laser)
-        self.assertIn(exit_data[0][0], (0, 2))          # Exit row
-        self.assertEqual(exit_data[0][1:3], (3, '>'))   # Exit column, direction
+        self.assertTrue(exit_data == [(0, 3, '>')]
+                        or exit_data == [(2, 3, '>')])
     
     def test_vanish(self):
         """
@@ -34,7 +34,7 @@ class TeleporterTest(unittest.TestCase):
         _grid = self.build_grid(items)
         _laser = self.build_laser(_grid)
         exit_data = _grid.compute_laser_exit(_laser)
-        self.assertEqual(exit_data[0], (1, 0, '>'))
+        self.assertEqual(exit_data, [(1, 0, '>')])
         
     def test_determinist_teleportation(self):
         """
