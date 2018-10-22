@@ -28,15 +28,15 @@ def rank_to_cap_letter(rank):
     
 def case_insensitive_stop(string):
     """
-       :return: A SRE_Match object if string is equal to "stop" in a case
-       insensitive sense, None if not.
+       :return: True if string is equal to "stop" in a case insensitive sense,
+       False if it is not.
     
-       >>> case_insensitive_stop("StoP") is None
-       False
-       >>> case_insensitive_stop("stap") is None
+       >>> case_insensitive_stop("StoP")
        True
+       >>> case_insensitive_stop("stap")
+       False
     """
-    return re.match('stop', string, re.IGNORECASE)
+    return re.match('stop', string, re.IGNORECASE) != None
 
 if __name__ == '__main__':
     import doctest
