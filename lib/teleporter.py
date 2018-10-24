@@ -1,4 +1,4 @@
-import random as rd
+from random import choice
 
 class Teleporter():
     """
@@ -27,7 +27,7 @@ class Teleporter():
         if (len(other_teleporters) == 0):    # Only one teleporter in the grid
             laser.vanish()
         elif random:
-            random_coordinates = rd.choice(other_teleporters)
+            random_coordinates = choice(other_teleporters)
             laser.teleport(random_coordinates)
         else:
             return [xy for xy in other_teleporters if (xy[0], xy[1],
