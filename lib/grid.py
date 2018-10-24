@@ -18,6 +18,9 @@ class Grid:
         self._items = dict()    
         self._height = height
         self._width = width
+        # List of size 2 tuples (x, y) depicting the coordinates of the
+        # teleporters contained in the grid
+        self._teleporters_coordinates = []
         # List of size 3 tuples (x, y, dir), each depicting a teleporter from 
         # which at least one laser exited with direction dir
         self._teleporters_exited = []
@@ -27,6 +30,8 @@ class Grid:
             assert item.symbol in conf.allowed_items, ("Error : {} is not a "
                    "valid item.".format(item.symbol))
             self._items[x, y] = item
+            if item.symbol == 'o':
+                self.add_teleporter_coordinates(x, y)
 
     @property
     def height(self):
@@ -35,8 +40,17 @@ class Grid:
     def width(self):
         return self._width
     @property
+    def teleporters_coordinates(self):
+        return self._teleporters_coordinates
+    @property
     def teleporters_exited(self):
         return self._teleporters_exited
+
+    def add_teleporter_coordinates(self, x, y):
+        """
+           Appends the given coordinates to _teleporters_coordinates.
+        """
+        self._teleporters_coordinates.append((x, y))
         
     def add_teleporter_exited(self, x, y, direction):
         """

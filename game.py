@@ -139,7 +139,6 @@ def display_conclusion(grid, exit_data):
     print(build_conclusions(grid, exit_data))
 
 def play():
-    teleporter.Teleporter.wipe_teleporter_coordinates()
     Grid = input_grid()
     print(Grid)
     Laser = input_laser(Grid)
@@ -154,4 +153,5 @@ def play():
         exit_data = Grid.compute_all_laser_exits(Laser)
     display_conclusion(Grid, exit_data)
 
-play()
+if __name__ == '__main__':
+    play()

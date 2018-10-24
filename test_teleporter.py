@@ -60,7 +60,6 @@ class TeleporterTest(unittest.TestCase):
         self.assertEqual(exit_data, [(1, 3, '>')])
         
     def build_teleporters(self, teleporters_coordinates):
-        teleporter.Teleporter.wipe_teleporter_coordinates()
         return [(xy[0], xy[1], teleporter.Teleporter(xy[0], xy[1])) for xy in
                 teleporters_coordinates]
         
