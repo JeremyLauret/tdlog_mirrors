@@ -6,6 +6,26 @@ import lib.string_utils as string_utils
 import conf
 import re
 
+def build_item(row, col, type):
+    """
+    :return: A mirror with the given type, or a teleporter with the given
+             coordinates.
+    """
+    if type == 'o':
+        return teleporter.Teleporter(row, col)
+    elif type == '\\':
+        return mirrors.BackslashMirror()
+    elif type == '/':
+        return mirrors.SlashMirror()
+    elif type == '#':
+        return mirrors.HashMirror()
+    elif type == '|':
+        return mirrors.PipeMirror()
+    elif type == '-':
+        return mirrors.DashMirror()
+    print("Erreur : type d'objet inconnu.")
+    return None
+
 def input_grid():
     """
        Builds a Grid object from user input.
@@ -49,21 +69,10 @@ def input_grid():
         type = input("Type ? [/|\\|#|||-|o] : > ")
         if (string_utils.case_insensitive_stop(type)):
             break
-        if type == 'o':
-            items.append((row, col, teleporter.Teleporter(row, col)))
-        elif type == '\\' :
-            items.append((row, col, mirrors.BackslashMirror()))
-        elif type == '/' :
-            items.append((row, col, mirrors.SlashMirror()))
-        elif type == '#' :
-            items.append((row, col, mirrors.HashMirror()))
-        elif type == '|' :
-            items.append((row, col, mirrors.PipeMirror()))
-        elif type == '-' :
-            items.append((row, col, mirrors.DashMirror()))
-        else:
-            print("Erreur : type d'objet inconnu.")
+        item = build_item(row, col, type)
+        if (item == None):    # Type not recognized
             continue
+        items.append((row, col, item))
         count += 1
     return grid.Grid(height, width, items)
 
