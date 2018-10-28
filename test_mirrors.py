@@ -1,7 +1,7 @@
 import unittest
-import lib.grid as grid
-import lib.mirrors as mirrors
-import lib.laser as laser
+import back.grid as grid
+import back.mirrors as mirrors
+import back.laser as laser
 
 class MirrorsTest(unittest.TestCase):
     """

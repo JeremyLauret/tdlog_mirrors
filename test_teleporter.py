@@ -1,7 +1,7 @@
 import unittest
-import lib.grid as grid
-import lib.teleporter as teleporter
-import lib.laser as laser
+import back.grid as grid
+import back.teleporter as teleporter
+import back.laser as laser
 
 class TeleporterTest(unittest.TestCase):
     """

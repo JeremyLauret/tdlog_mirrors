@@ -1,10 +1,10 @@
-import lib.grid as grid
-import lib.laser as laser
-import lib.mirrors as mirrors
-import lib.teleporter as teleporter
-import lib.string_utils as string_utils
+from random import randint, choice
 import conf
-import re
+import back.mirrors as mirrors
+import back.teleporter as teleporter
+import back.grid as grid
+import back.laser as laser
+import back.string_utils as string_utils
 
 def build_item(row, col, type):
     """
@@ -105,62 +105,51 @@ def input_laser(container):
         x, y = 0 if direction == 'v' else container.height - 1, entry_point
     return laser.Laser(x, y, direction, container)
 
-def build_conclusion(grid, exit_x, exit_y, exit_direction):
+def random_grid(min_height, max_height, min_width, max_width,
+                min_items, max_items):
     """
-       Builds the conclusion text summing up the exit point and direction of
-       the laser after a simulation.
+       Builds a grid object with random size and content.
+       The mirror/teleporter type choice is biased so that it is three times as
+       likely to chose a teleporter as any mirror.
+       A teleporter is added if there is only one teleporter in the grid to
+       prevent the laser from vanishing.
     """
-    if exit_x < 0 or exit_x >= grid.height:
-        exit_point = string_utils.rank_to_cap_letter(exit_y)
-        return ("Le laser quitte la grille au point {} avec pour direction {}."
-                .format(exit_point, exit_direction))
-    elif exit_y < 0 or exit_y >= grid.width:
-        exit_point = string_utils.rank_to_cap_letter(exit_x)
-        return ("Le laser quitte la grille au point {} avec pour direction {}."
-                .format(exit_point, exit_direction))
-    # Le laser a disparu dans un téléporteur
-    exit_point = (string_utils.rank_to_cap_letter(exit_x),
-                  string_utils.rank_to_cap_letter(exit_y))
-    return ("Le laser est aspiré par un téléporteur sans sortie ! Il disparait"
-            " au point ({}, {}) avec direction {}."
-            .format(exit_point[0], exit_point[1], exit_direction))
-              
-def build_conclusions(grid, exit_data):
-    """
-       Builds the conclusion text summing up the exit points and directions the
-       laser could have depending on the teleporters it encounters.
-       
-       :param exit_data: 
-       List of size 3 tuples in the form (exit_x, exit_y, exit_direction).
-    """
-    if (len(exit_data) == 1):    # Si un seul résultat est possible
-        return (build_conclusion(grid, exit_data[0][0], exit_data[0][1],
-                exit_data[0][2]))
-    text = "Les résultats possibles de la simulation sont les suivants :\n"
-    counter = 1
-    for data in exit_data:
-        text += (str(counter) + ") "
-                 + build_conclusion(grid, data[0], data[1], data[2]) + "\n")
-        counter += 1
-    return text
-    
-def display_conclusion(grid, exit_data):
-    print(build_conclusions(grid, exit_data))
+    assert conf.min_height <= min_height and max_height <= conf.max_height, \
+        "Error : the height range [{}, {}] is not contained in [{}, {}]." \
+        .format(min_height, max_height, conf.min_height, conf.max_height)
+    assert conf.min_width <= min_width and max_width <= conf.max_width, \
+        "Error : the width range [{}, {}] is not contained in [{}, {}]." \
+        .format(min_width, max_width, conf.min_width, conf.max_width)
+    grid_height = randint(min_height, max_height)
+    grid_width = randint(min_width, max_width)
+    items_number = randint(min_items, max_items)
+    empty_coordinates = sum([[(i, j) for j in range(grid_width)]
+                       for i in range(grid_height)], [])
+    items = []
+    for item_number in range(items_number):
+        random_cell_number = randint(0, len(empty_coordinates) - 1)
+        random_row, random_col = empty_coordinates[random_cell_number]
+        empty_coordinates = (empty_coordinates[:random_cell_number]
+                       + empty_coordinates[random_cell_number + 1:])
+        random_type = choice(conf.allowed_items + ['o', 'o'])
+        items.append((random_row, random_col,
+                      build_item(random_row, random_col, random_type)))
+    if [item[2].symbol for item in items].count('o') == 1:
+        random_row, random_col = choice(empty_coordinates)
+        items.append((random_row, random_col,
+                      build_item(random_row, random_col, 'o')))
+    return grid.Grid(grid_height, grid_width, items)
 
-def play():
-    Grid = input_grid()
-    print(Grid)
-    Laser = input_laser(Grid)
-    compute_all_paths = input("Calculer chaque sortie possible ? [O|n] > ")
-    print(" ")
-    if (re.match('no?n?', compute_all_paths, re.IGNORECASE)):
-        exit_data = Grid.compute_laser_exit(Laser)
-        display_laser_path = input("Afficher le trajet du laser ? [O|n] > ")
-        if (not re.match('no?n?', display_laser_path, re.IGNORECASE)):
-            Grid.display_laser(Laser)
+def random_laser(_grid):
+    """
+       Builds a laser object entering the grid _grid from a random cell on the
+       side.
+    """
+    random_direction = choice(conf.allowed_directions)
+    if random_direction in ['>', '<']:
+        random_x, random_y = (randint(0, _grid.height - 1), 0 if
+                              random_direction == '>' else _grid.width - 1)
     else:
-        exit_data = Grid.compute_all_laser_exits(Laser)
-    display_conclusion(Grid, exit_data)
-
-if __name__ == '__main__':
-    play()
+        random_x, random_y = (0 if random_direction == 'v' else
+                              _grid.height - 1, randint(0, _grid.width - 1))
+    return laser.Laser(random_x, random_y, random_direction, _grid)

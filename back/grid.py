@@ -1,8 +1,8 @@
 import conf
-import lib.mirrors as mirrors
-import lib.teleporter as teleporter
-import lib.string_utils as string_utils
-import lib.laser
+import back.mirrors as mirrors
+import back.teleporter as teleporter
+import back.string_utils as string_utils
+import back.laser
 
 class Grid:
     """
@@ -147,8 +147,8 @@ class Grid:
                 if (len(interesting_coordinates) == 0):
                     return exit_data    # The laser cannot give new exit points
                 for coordinates in interesting_coordinates[1:]:
-                    laser_copy = lib.laser.Laser(laser.x, laser.y,
-                                                 laser.direction, self)
+                    laser_copy = back.laser.Laser(laser.x, laser.y,
+                                                  laser.direction, self)
                     laser_copy.teleport(coordinates)
                     laser_copy.progress()
                     exit_data += self.compute_all_laser_exits(laser_copy)
